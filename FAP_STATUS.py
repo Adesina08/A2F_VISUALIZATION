@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import json
 
 # Set page configuration
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", page_title="A2F VISUALIZATION", page_icon="🌍")
 
 # Add image to the sidebar
 st.sidebar.image("OIP.jpg", use_column_width=True)
