@@ -34,6 +34,10 @@ def load_polygon_geojson_selected_state(selected_state):
 
 # Function to generate map for FAP functionalities
 def generate_map_fap_functionalities(selected_state, selected_fap_functionality, data, state_gdf, state_geojson_data):
+    zoom_level = 5.85  # Adjusted zoom level for Nigeria
+    center_lat = 9.0820  # Center of Nigeria latitude
+    center_lon = 8.6753  # Center of Nigeria longitude
+    
     # Load polygon GeoJSON data for the selected state
     if selected_state != 'All':
         polygon_geojson_data = load_polygon_geojson_selected_state(selected_state)
@@ -120,6 +124,10 @@ def generate_map_fap_functionalities(selected_state, selected_fap_functionality,
 
 # Function to generate map for FAP types
 def generate_map_fap_types(selected_state, selected_fap_type, data, state_gdf, state_geojson_data):
+    zoom_level = 5.85  # Adjusted zoom level for Nigeria
+    center_lat = 9.0820  # Center of Nigeria latitude
+    center_lon = 8.6753  # Center of Nigeria longitude
+    
     # Load polygon GeoJSON data for the selected state
     if selected_state != 'All':
         polygon_geojson_data = load_polygon_geojson_selected_state(selected_state)
