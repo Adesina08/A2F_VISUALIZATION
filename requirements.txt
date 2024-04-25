@@ -1,1 +1,2 @@
 geopandas==0.14.3
+plotly==5.21.0
