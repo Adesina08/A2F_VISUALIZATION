@@ -100,8 +100,8 @@ def generate_map_fap_functionalities(selected_state, selected_fap_functionality,
                     mode="lines",
                     lat=lats,
                     lon=lons,
-                    line=dict(color="purple", width=1),
-                    fill="toself",  # Fill the inside of the polygon
+                    line=dict(color="purple", width=4),
+                    #fill="toself",  # Fill the inside of the polygon
                     showlegend=False  # Exclude from legend
                 ))
 
@@ -207,8 +207,8 @@ def generate_map_fap_types(selected_state, selected_fap_type, data, state_gdf, s
                     mode="lines",
                     lat=lats,
                     lon=lons,
-                    line=dict(color="purple", width=1),
-                    fill="toself",  # Fill the inside of the polygon
+                    line=dict(color="purple", width=4),
+                    #fill="toself",  # Fill the inside of the polygon
                     showlegend=False  # Exclude from legend
                 ))
 
