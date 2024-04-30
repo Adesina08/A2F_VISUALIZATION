@@ -293,7 +293,7 @@ def page1():
     state_gdf = gpd.GeoDataFrame.from_features(state_geojson_data["features"])
 
     # Filter by state and FAP functionality
-    states = ['All'] + list(data['STATE'].unique())
+    states = ['All'] + sorted(list(data['STATE'].unique()))
     selected_state = st.sidebar.selectbox("Select State", states)
 
     fap_functionalities = ['All', 'Active', 'Inactive']
@@ -337,7 +337,7 @@ def page2():
     state_gdf = gpd.GeoDataFrame.from_features(state_geojson_data["features"])
 
     # Filter by state (if required)
-    states = ['All'] + list(data['STATE'].unique())
+    states = ['All'] + sorted(list(data['STATE'].unique()))
     selected_state = st.sidebar.selectbox("Select State", states)
 
     # Filter by FAP type
