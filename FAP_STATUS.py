@@ -81,7 +81,7 @@ def generate_map_fap_functionalities(selected_state, selected_fap_functionality,
                 lon=fap_filtered_data["LONGITUDE"],
                 mode="markers",
                 marker=dict(
-                    size=12,
+                    size=13,
                     color=color,
                     opacity=0.7,
                 ),
@@ -100,8 +100,8 @@ def generate_map_fap_functionalities(selected_state, selected_fap_functionality,
                     mode="lines",
                     lat=lats,
                     lon=lons,
-                    line=dict(color="purple", width=4),
-                    #fill="toself",  # Fill the inside of the polygon
+                    line=dict(color="purple", width=1),
+                    fill="toself",  # Fill the inside of the polygon
                     showlegend=False  # Exclude from legend
                 ))
 
@@ -188,7 +188,7 @@ def generate_map_fap_types(selected_state, selected_fap_type, data, state_gdf, s
             lon=fap_filtered_data["LONGITUDE"],
             mode="markers",
             marker=dict(
-                size=12,
+                size=13,
                 color=color,
                 opacity=0.7,
             ),
@@ -337,7 +337,7 @@ def page2():
     state_gdf = gpd.GeoDataFrame.from_features(state_geojson_data["features"])
 
     # Filter by state (if required)
-    states = ['All'] + sorted(list(data['STATE'].unique()))
+    states = ['All'] + list(data['STATE'].unique())
     selected_state = st.sidebar.selectbox("Select State", states)
 
     # Filter by FAP type
