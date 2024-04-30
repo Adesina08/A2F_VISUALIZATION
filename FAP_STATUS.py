@@ -81,7 +81,7 @@ def generate_map_fap_functionalities(selected_state, selected_fap_functionality,
                 lon=fap_filtered_data["LONGITUDE"],
                 mode="markers",
                 marker=dict(
-                    size=20,
+                    size=12,
                     color=color,
                     opacity=0.7,
                 ),
@@ -188,7 +188,7 @@ def generate_map_fap_types(selected_state, selected_fap_type, data, state_gdf, s
             lon=fap_filtered_data["LONGITUDE"],
             mode="markers",
             marker=dict(
-                size=20,
+                size=12,
                 color=color,
                 opacity=0.7,
             ),
