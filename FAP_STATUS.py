@@ -229,7 +229,7 @@ def generate_map_fap_types(selected_state, selected_fap_type, data, state_gdf, s
 
     return fig
 
-def generate_map(state_gdf, data, inside_ea=True):
+def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_type):
     # Center of Nigeria latitude and longitude
     center_lat = 9.0820
     center_lon = 8.6753
@@ -237,30 +237,51 @@ def generate_map(state_gdf, data, inside_ea=True):
     # Adjusted zoom level
     zoom_level = 5.85
 
-    if inside_ea:
-        title = "Heatmap of FAP Locations (Inside EA) by State"
-        color_column = 'Inside EA'
-        color_scale = "greens"
-    else:
-        title = "Heatmap of FAP Locations (Outside EA) by State"
-        color_column = 'Outside EA'
-        color_scale = "reds"
+    title = f"Heatmap of Average KM Diff Calculation by State for {selected_fap_type} FAP"
 
-    # Group data by state and FAP_LOCATION and count occurrences
-    grouped_data = data.groupby(['STATE', 'FAP_LOCATION']).size().unstack(fill_value=0).reset_index()
+    # Filter data by selected FAP type
+    filtered_data = data[data['FAP_TYPE'] == selected_fap_type]
+
+    # Group data by state and calculate average KM Diff for each state
+    avg_km_diff_by_state = filtered_data.groupby('STATE')['KM_Diff_Calculation'].mean().reset_index()
+
+    # Merge average data with state GeoDataFrame
+    merged_data = state_gdf.merge(avg_km_diff_by_state, how='left', left_on='admin1Name', right_on='STATE')
+
+    # Fill missing values with 0
+    merged_data['KM_Diff_Calculation'].fillna(0, inplace=True)
 
     # Create choropleth map for state boundaries with heatmap
-    fig = px.choropleth_mapbox(state_gdf, 
-                               geojson=state_gdf.geometry,  # Use GeoJSON data directly
-                               locations=state_gdf.index,  # Use index as locations
-                               color=grouped_data[color_column],  # Color by count of "Inside EA" or "Outside EA"
-                               color_continuous_scale=color_scale,  # Choose color scale
-                               range_color=(0, grouped_data[color_column].max()),  # Set color range
+    fig = px.choropleth_mapbox(merged_data, 
+                               geojson=merged_data.geometry,  # Use GeoDataFrame geometry
+                               locations=merged_data.index,  # Use index as locations
+                               color='KM_Diff_Calculation',  # Color by average Km_Diff_Calculation
+                               color_continuous_scale="greens",  # Choose color scale
+                               range_color=(0, merged_data['KM_Diff_Calculation'].max()),  # Set color range
                                mapbox_style="carto-positron",
                                zoom=zoom_level,
                                opacity=0.5,
                                center={"lat": center_lat, "lon": center_lon}  # Set center of map
                               )
+
+    # Calculate Center Coordinates of States
+    center_pos = {}
+    for feature in state_geojson_data["features"]:
+        state_name = feature["properties"]["admin1Name"]
+        centroid = state_gdf[state_gdf["admin1Name"] == state_name].geometry.centroid.iloc[0]
+        center_pos[state_name] = [centroid.x, centroid.y]
+
+    # Adding Text to the Map
+    for state_name, coords in center_pos.items():
+        avg_value = merged_data[merged_data["admin1Name"] == state_name]["KM_Diff_Calculation"].iloc[0]
+        fig.add_trace(go.Scattermapbox(
+            lat=[coords[1]],
+            lon=[coords[0]],
+            mode="text",
+            textfont=dict(color="black", size=15),
+            text=str(round(avg_value, 2)),
+            showlegend=False
+        ))
 
     # Set layout for the map
     fig.update_layout(
@@ -353,8 +374,9 @@ def page2():
 
 # Define page 3 content
 def page3():
+    # Add image to the sidebar
+    st.sidebar.image("OIP.jpg", use_column_width=True)
     st.sidebar.header("FAP PROXIMITY VISUALIZATION")
-    st.title("FAP PROXIMITY VISUALIZATION")
     
     # Load GeoJSON data for state boundaries
     state_geojson_data = load_state_geojson("ngaadmbndaadm1osgof20161215.geojson")
@@ -363,22 +385,17 @@ def page3():
     state_gdf = gpd.GeoDataFrame.from_features(state_geojson_data["features"])
 
     # Load data
-    file_path = "A2F_FAP_v1.csv"
+    file_path = "C:\\Users\\Adesina.Adeyemo\\Desktop\\A2F_FINAL_VISUALIZATION\\FAP_STATUS\\A2F_FAP_v1.csv"  # Replace with your actual dataset file path
     data = load_data(file_path)
 
-    # Display buttons for selecting inside or outside EA
-    inside_ea = st.sidebar.button("Inside EA")
-    outside_ea = st.sidebar.button("Outside EA")
+    # Get unique FAP types
+    fap_types = data['FAP_TYPE'].unique().tolist()
+    selected_fap_type = st.sidebar.selectbox("Select FAP Type", fap_types)
 
-    # Display the map based on button selection
-    if inside_ea:
-        with st.spinner("Loading Map (Inside EA)..."):
-            fig = generate_map(state_gdf, data, inside_ea=True)
-            st.plotly_chart(fig, use_container_width=True)
-    elif outside_ea:
-        with st.spinner("Loading Map (Outside EA)..."):
-            fig = generate_map(state_gdf, data, inside_ea=False)
-            st.plotly_chart(fig, use_container_width=True)
+    # Display the heatmap
+    with st.spinner("Loading Average KM Diff Heatmap..."):
+        fig = generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_type)
+        st.plotly_chart(fig, use_container_width=True)
 
 # Render selected page based on selection in the sidebar
 selected_page = st.sidebar.radio("Select Page", ["FAP Status Visualization", "FAP Type Visualization", "FAP Proximity Visualization"])
