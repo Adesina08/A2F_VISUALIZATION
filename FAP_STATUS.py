@@ -237,7 +237,7 @@ def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_t
     # Adjusted zoom level
     zoom_level = 5.85
 
-    title = f"Heatmap of Average KM Diff Calculation by State for {selected_fap_type} FAP"
+    title = f"Heatmap of Average KM Difference by State for {selected_fap_type}"
 
     # Filter data by selected FAP type
     filtered_data = data[data['FAP_TYPE'] == selected_fap_type]
@@ -297,7 +297,6 @@ def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_t
 
     return fig
 
-# Define page 1 content
 # Define page 1 content
 def page1():
     st.sidebar.header("FAP STATUS VISUALIZATION")
@@ -384,7 +383,7 @@ def page3():
     state_gdf = gpd.GeoDataFrame.from_features(state_geojson_data["features"])
 
     # Load data
-    file_path = "A2F_FAP_v1.csv"  # Replace with your actual dataset file path
+    file_path = "A2F_FAP_v1.csv"
     data = load_data(file_path)
 
     # Get unique FAP types
