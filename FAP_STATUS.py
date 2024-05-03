@@ -374,6 +374,9 @@ def page2():
 
 # Define page 3 content
 def page3():
+
+    st.sidebar.header("FAP PROXIMITY VISUALIZATION")
+    
     # Load GeoJSON data for state boundaries
     state_geojson_data = load_state_geojson("ngaadmbndaadm1osgof20161215.geojson")
 
