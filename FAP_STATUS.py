@@ -374,10 +374,6 @@ def page2():
 
 # Define page 3 content
 def page3():
-    # Add image to the sidebar
-    st.sidebar.image("OIP.jpg", use_column_width=True)
-    st.sidebar.header("FAP PROXIMITY VISUALIZATION")
-    
     # Load GeoJSON data for state boundaries
     state_geojson_data = load_state_geojson("ngaadmbndaadm1osgof20161215.geojson")
 
@@ -385,7 +381,7 @@ def page3():
     state_gdf = gpd.GeoDataFrame.from_features(state_geojson_data["features"])
 
     # Load data
-    file_path = "C:\\Users\\Adesina.Adeyemo\\Desktop\\A2F_FINAL_VISUALIZATION\\FAP_STATUS\\A2F_FAP_v1.csv"  # Replace with your actual dataset file path
+    file_path = "A2F_FAP_v1.csv"  # Replace with your actual dataset file path
     data = load_data(file_path)
 
     # Get unique FAP types
