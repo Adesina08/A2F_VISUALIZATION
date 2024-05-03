@@ -237,7 +237,7 @@ def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_t
     # Adjusted zoom level
     zoom_level = 5.85
 
-    title = f"Heatmap of Average KM Difference by State for {selected_fap_type}"
+    title = "Heat map of  average proximity to FAP in KM"
 
     # Filter data by selected FAP type
     filtered_data = data[data['FAP_TYPE'] == selected_fap_type]
