@@ -229,7 +229,17 @@ def generate_map_fap_types(selected_state, selected_fap_type, data, state_gdf, s
 
     return fig
 
-def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_type):
+# Function to calculate average proximity for each EA
+def calculate_average_proximity(selected_state_data, selected_fap_type):
+    # Filter data by selected FAP type
+    filtered_data = selected_state_data[selected_state_data['FAP_TYPE'] == selected_fap_type]
+    
+    # Group by EA and calculate average proximity for each EA
+    avg_proximity_per_ea = filtered_data.groupby('EA')['KM_Diff_Calculation'].mean().reset_index()
+    
+    return avg_proximity_per_ea
+
+def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_type, selected_state=None):
     # Center of Nigeria latitude and longitude
     center_lat = 9.0820
     center_lon = 8.6753
@@ -237,32 +247,50 @@ def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_t
     # Adjusted zoom level
     zoom_level = 5.85
 
-    title = "Heat map of  average proximity to FAP in KM"
+    title = f"Heatmap of average proximity to FAP in KM"
 
-    # Filter data by selected FAP type
-    filtered_data = data[data['FAP_TYPE'] == selected_fap_type]
-
-    # Group data by state and calculate average KM Diff for each state
-    avg_km_diff_by_state = filtered_data.groupby('STATE')['KM_Diff_Calculation'].mean().reset_index()
-
-    # Merge average data with state GeoDataFrame
-    merged_data = state_gdf.merge(avg_km_diff_by_state, how='left', left_on='admin1Name', right_on='STATE')
-
-    # Fill missing values with 0
-    merged_data['KM_Diff_Calculation'].fillna(0, inplace=True)
-
-    # Create choropleth map for state boundaries with heatmap
-    fig = px.choropleth_mapbox(merged_data, 
-                               geojson=merged_data.geometry,  # Use GeoDataFrame geometry
-                               locations=merged_data.index,  # Use index as locations
-                               color='KM_Diff_Calculation',  # Color by average Km_Diff_Calculation
-                               color_continuous_scale="greens",  # Choose color scale
-                               range_color=(0, merged_data['KM_Diff_Calculation'].max()),  # Set color range
-                               mapbox_style="carto-positron",
-                               zoom=zoom_level,
-                               opacity=0.5,
-                               center={"lat": center_lat, "lon": center_lon}  # Set center of map
-                              )
+    if selected_state:
+        # Filter data by selected state
+        filtered_data = data[(data['FAP_TYPE'] == selected_fap_type) & (data['STATE'] == selected_state)]
+        # Group data by state and calculate average KM Diff for the selected state
+        avg_km_diff_by_state = filtered_data.groupby('STATE')['KM_Diff_Calculation'].mean().reset_index()
+        # Merge average data with state GeoDataFrame for the selected state
+        merged_data = state_gdf.merge(avg_km_diff_by_state, how='left', left_on='admin1Name', right_on='STATE')
+        # Fill missing values with 0 for the selected state
+        merged_data['KM_Diff_Calculation'].fillna(0, inplace=True)
+        # Create choropleth map for the selected state only
+        fig = px.choropleth_mapbox(merged_data, 
+                                   geojson=merged_data.geometry,  # Use GeoDataFrame geometry
+                                   locations=merged_data.index,  # Use index as locations
+                                   color='KM_Diff_Calculation',  # Color by average Km_Diff_Calculation
+                                   color_continuous_scale="greens",  # Choose color scale
+                                   range_color=(0, merged_data['KM_Diff_Calculation'].max()),  # Set color range
+                                   mapbox_style="carto-positron",
+                                   zoom=zoom_level,
+                                   opacity=0.5,
+                                   center={"lat": center_lat, "lon": center_lon}  # Set center of map
+                                  )
+    else:
+        # Filter data by selected FAP type
+        filtered_data = data[data['FAP_TYPE'] == selected_fap_type]
+        # Group data by state and calculate average KM Diff for each state
+        avg_km_diff_by_state = filtered_data.groupby('STATE')['KM_Diff_Calculation'].mean().reset_index()
+        # Merge average data with state GeoDataFrame
+        merged_data = state_gdf.merge(avg_km_diff_by_state, how='left', left_on='admin1Name', right_on='STATE')
+        # Fill missing values with 0
+        merged_data['KM_Diff_Calculation'].fillna(0, inplace=True)
+        # Create choropleth map for all states
+        fig = px.choropleth_mapbox(merged_data, 
+                                   geojson=merged_data.geometry,  # Use GeoDataFrame geometry
+                                   locations=merged_data.index,  # Use index as locations
+                                   color='KM_Diff_Calculation',  # Color by average Km_Diff_Calculation
+                                   color_continuous_scale="greens",  # Choose color scale
+                                   range_color=(0, merged_data['KM_Diff_Calculation'].max()),  # Set color range
+                                   mapbox_style="carto-positron",
+                                   zoom=zoom_level,
+                                   opacity=0.5,
+                                   center={"lat": center_lat, "lon": center_lon}  # Set center of map
+                                  )
 
     # Calculate Center Coordinates of States
     center_pos = {}
@@ -373,27 +401,46 @@ def page2():
 
 # Define page 3 content
 def page3():
-
-    st.sidebar.header("FAP PROXIMITY VISUALIZATION")
-    
-    # Load GeoJSON data for state boundaries
+ # Load GeoJSON data for state boundaries
     state_geojson_data = load_state_geojson("ngaadmbndaadm1osgof20161215.geojson")
 
     # Convert GeoJSON data to GeoDataFrame for state boundaries
     state_gdf = gpd.GeoDataFrame.from_features(state_geojson_data["features"])
 
     # Load data
-    file_path = "A2F_FAP_v1.csv"
+    file_path = "A2F_FAP_v1.csv"  # Replace with your actual dataset file path
     data = load_data(file_path)
 
     # Get unique FAP types
     fap_types = data['FAP_TYPE'].unique().tolist()
     selected_fap_type = st.sidebar.selectbox("Select FAP Type", fap_types)
 
+    # Get unique states
+    states = data['STATE'].unique().tolist()
+    states.insert(0, "All")
+    selected_state = st.sidebar.selectbox("Select State", states)
+
     # Display the heatmap
-    with st.spinner("Loading Average KM Diff Heatmap..."):
+    if selected_state == "All":
         fig = generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_type)
         st.plotly_chart(fig, use_container_width=True)
+    else:
+        col1, col2 = st.columns([9, 3])
+        with col1:
+            with st.spinner("Loading Average KM Diff Heatmap..."):
+                fig = generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_type, selected_state)
+                st.plotly_chart(fig, use_container_width=True)
+
+        # Filter data for selected state
+        selected_state_data = data[data['STATE'] == selected_state]
+        
+        # Calculate Average Proximity for each EA in the selected state and FAP type
+        avg_proximity_per_ea = calculate_average_proximity(selected_state_data, selected_fap_type)
+        
+        # Display unique EAs and their calculated average proximity
+        with col2:
+            st.markdown(f"### FAP Proximity by EA in {selected_state} state")
+            st.table(avg_proximity_per_ea)
 
 # Render selected page based on selection in the sidebar
 selected_page = st.sidebar.radio("Select Page", ["FAP Status Visualization", "FAP Type Visualization", "FAP Proximity Visualization"])
