@@ -5,18 +5,17 @@ import plotly.express as px
 import plotly.graph_objects as go
 import json
 
-# Set page configuration
+# Page configuration
 st.set_page_config(layout="wide", page_title="A2F VISUALIZATION", page_icon="🌍")
 
-# Add image to the sidebar
+# Image to the sidebar
 st.sidebar.image("OIP.jpg", use_column_width=True)
 st.sidebar.header("FAP VISUALIZATION")
 
 # Function to load data
 def load_data():
     return pd.read_csv("A2F_FAP_v1.csv")
-
-# Function to load data
+    
 @st.cache_data
 def load_data(file_path):
     return pd.read_csv(file_path)
@@ -59,20 +58,20 @@ def generate_map_fap_functionalities(selected_state, selected_fap_functionality,
         center_lon = 8.6753  # Center of Nigeria longitude
         zoom_level = 5.85  # Adjusted zoom level
 
-    # Define colors for FAP functionalities
+    # Defined colors for FAP functionalities
     fap_colors = {'Active': 'green', 'Inactive': 'red'}
 
-    # Create choropleth map for state boundaries
+    # Choropleth map for state boundaries
     fig = px.choropleth_mapbox(selected_state_gdf if selected_state != 'All' else state_gdf, 
-                               geojson=state_gdf.geometry,  # Use GeoJSON data directly
-                               locations=selected_state_gdf.index if selected_state != 'All' else state_gdf.index,  # Use index as locations
+                               geojson=state_gdf.geometry,  # Using GeoJSON data directly
+                               locations=selected_state_gdf.index if selected_state != 'All' else state_gdf.index,  # Using index as locations
                                mapbox_style="carto-positron",
                                zoom=zoom_level,
                                opacity=0.5,
-                               center={"lat": center_lat, "lon": center_lon}  # Set center of map
+                               center={"lat": center_lat, "lon": center_lon}  # Setting center of map
                               )
 
-    # Add scatter plot for filtered data
+    # Scatter plot for filtered data
     for fap_func, color in fap_colors.items():
         if selected_fap_functionality == 'All' or fap_func == selected_fap_functionality:
             fap_filtered_data = filtered_data[filtered_data['FAP_FUNCTIONALITY'] == fap_func]
@@ -89,19 +88,18 @@ def generate_map_fap_functionalities(selected_state, selected_fap_functionality,
                 name=f"{fap_func}"  # Legend label for each marker
             ))
 
-    # Add polygons to the figure
+    # Polygons(EAs) to the figure/map
     if polygon_geojson_data:
         for feature in polygon_geojson_data["features"]:
             if feature["geometry"]["type"] == "Polygon":
                 coords = feature["geometry"]["coordinates"][0]  # Extract the coordinates of the first polygon
-                lats = [coord[1] for coord in coords]  # Extract latitude values
-                lons = [coord[0] for coord in coords]  # Extract longitude values
+                lats = [coord[1] for coord in coords]  #To  Extract latitude values
+                lons = [coord[0] for coord in coords]  #To Extract longitude values
                 fig.add_trace(go.Scattermapbox(
                     mode="lines",
                     lat=lats,
                     lon=lons,
-                    line=dict(color="purple", width=1),
-                    fill="toself",  # Fill the inside of the polygon
+                    line=dict(color="purple", width=4),
                     showlegend=False  # Exclude from legend
                 ))
 
@@ -208,7 +206,6 @@ def generate_map_fap_types(selected_state, selected_fap_type, data, state_gdf, s
                     lat=lats,
                     lon=lons,
                     line=dict(color="purple", width=4),
-                    #fill="toself",  # Fill the inside of the polygon
                     showlegend=False  # Exclude from legend
                 ))
 
@@ -252,12 +249,16 @@ def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_t
     if selected_state:
         # Filter data by selected state
         filtered_data = data[(data['FAP_TYPE'] == selected_fap_type) & (data['STATE'] == selected_state)]
+        
         # Group data by state and calculate average KM Diff for the selected state
         avg_km_diff_by_state = filtered_data.groupby('STATE')['KM_Diff_Calculation'].mean().reset_index()
+        
         # Merge average data with state GeoDataFrame for the selected state
         merged_data = state_gdf.merge(avg_km_diff_by_state, how='left', left_on='admin1Name', right_on='STATE')
+        
         # Fill missing values with 0 for the selected state
         merged_data['KM_Diff_Calculation'].fillna(0, inplace=True)
+        
         # Create choropleth map for the selected state only
         fig = px.choropleth_mapbox(merged_data, 
                                    geojson=merged_data.geometry,  # Use GeoDataFrame geometry
@@ -273,12 +274,16 @@ def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_t
     else:
         # Filter data by selected FAP type
         filtered_data = data[data['FAP_TYPE'] == selected_fap_type]
+        
         # Group data by state and calculate average KM Diff for each state
         avg_km_diff_by_state = filtered_data.groupby('STATE')['KM_Diff_Calculation'].mean().reset_index()
+        
         # Merge average data with state GeoDataFrame
         merged_data = state_gdf.merge(avg_km_diff_by_state, how='left', left_on='admin1Name', right_on='STATE')
+        
         # Fill missing values with 0
         merged_data['KM_Diff_Calculation'].fillna(0, inplace=True)
+        
         # Create choropleth map for all states
         fig = px.choropleth_mapbox(merged_data, 
                                    geojson=merged_data.geometry,  # Use GeoDataFrame geometry
@@ -366,7 +371,6 @@ def page1():
         col2.table(counts_by_state)
 
 
-# Define page 2 content
 # Define page 2 content
 def page2():
     st.sidebar.header("FAP TYPE VISUALIZATION")
