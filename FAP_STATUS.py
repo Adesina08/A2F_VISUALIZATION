@@ -257,7 +257,7 @@ def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_t
         merged_data = state_gdf.merge(avg_km_diff_by_state, how='left', left_on='admin1Name', right_on='STATE')
         
         # Fill missing values with 0 for the selected state
-        merged_data['KM_Diff_Calculation'].fillna(0, inplace=True)
+        merged_data['KM Diff Calculation'].fillna(0, inplace=True)
         
         # Create choropleth map for the selected state only
         fig = px.choropleth_mapbox(merged_data, 
