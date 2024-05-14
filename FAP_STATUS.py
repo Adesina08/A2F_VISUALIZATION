@@ -232,7 +232,7 @@ def calculate_average_proximity(selected_state_data, selected_fap_type):
     filtered_data = selected_state_data[selected_state_data['FAP_TYPE'] == selected_fap_type]
     
     # Group by EA and calculate average proximity for each EA
-    avg_proximity_per_ea = filtered_data.groupby('EA')['KM_Diff_Calculation'].mean().reset_index()
+    avg_proximity_per_ea = filtered_data.groupby('EA NAME')['KM_Diff_Calculation'].mean().reset_index()
     
     return avg_proximity_per_ea
 
