@@ -232,7 +232,7 @@ def calculate_average_proximity(selected_state_data, selected_fap_type):
     filtered_data = selected_state_data[selected_state_data['FAP_TYPE'] == selected_fap_type]
     
     # Group by EA and calculate average proximity for each EA
-    avg_proximity_per_ea = filtered_data.groupby('EA NAME')['KM_Diff_Calculation'].mean().reset_index()
+    avg_proximity_per_ea = filtered_data.groupby('EA NAME')['KM Diff Calculation'].mean().reset_index()
     
     return avg_proximity_per_ea
 
@@ -251,7 +251,7 @@ def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_t
         filtered_data = data[(data['FAP_TYPE'] == selected_fap_type) & (data['STATE'] == selected_state)]
         
         # Group data by state and calculate average KM Diff for the selected state
-        avg_km_diff_by_state = filtered_data.groupby('STATE')['KM_Diff_Calculation'].mean().reset_index()
+        avg_km_diff_by_state = filtered_data.groupby('STATE')['KM Diff Calculation'].mean().reset_index()
         
         # Merge average data with state GeoDataFrame for the selected state
         merged_data = state_gdf.merge(avg_km_diff_by_state, how='left', left_on='admin1Name', right_on='STATE')
@@ -263,9 +263,9 @@ def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_t
         fig = px.choropleth_mapbox(merged_data, 
                                    geojson=merged_data.geometry,  # Use GeoDataFrame geometry
                                    locations=merged_data.index,  # Use index as locations
-                                   color='KM_Diff_Calculation',  # Color by average Km_Diff_Calculation
+                                   color='KM Diff Calculation',  # Color by average Km_Diff_Calculation
                                    color_continuous_scale="greens",  # Choose color scale
-                                   range_color=(0, merged_data['KM_Diff_Calculation'].max()),  # Set color range
+                                   range_color=(0, merged_data['KM Diff Calculation'].max()),  # Set color range
                                    mapbox_style="carto-positron",
                                    zoom=zoom_level,
                                    opacity=0.5,
@@ -276,21 +276,21 @@ def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_t
         filtered_data = data[data['FAP_TYPE'] == selected_fap_type]
         
         # Group data by state and calculate average KM Diff for each state
-        avg_km_diff_by_state = filtered_data.groupby('STATE')['KM_Diff_Calculation'].mean().reset_index()
+        avg_km_diff_by_state = filtered_data.groupby('STATE')['KM Diff Calculation'].mean().reset_index()
         
         # Merge average data with state GeoDataFrame
         merged_data = state_gdf.merge(avg_km_diff_by_state, how='left', left_on='admin1Name', right_on='STATE')
         
         # Fill missing values with 0
-        merged_data['KM_Diff_Calculation'].fillna(0, inplace=True)
+        merged_data['KM Diff Calculation'].fillna(0, inplace=True)
         
         # Create choropleth map for all states
         fig = px.choropleth_mapbox(merged_data, 
                                    geojson=merged_data.geometry,  # Use GeoDataFrame geometry
                                    locations=merged_data.index,  # Use index as locations
-                                   color='KM_Diff_Calculation',  # Color by average Km_Diff_Calculation
+                                   color='KM Diff Calculation',  # Color by average Km_Diff_Calculation
                                    color_continuous_scale="greens",  # Choose color scale
-                                   range_color=(0, merged_data['KM_Diff_Calculation'].max()),  # Set color range
+                                   range_color=(0, merged_data['KM Diff Calculation'].max()),  # Set color range
                                    mapbox_style="carto-positron",
                                    zoom=zoom_level,
                                    opacity=0.5,
@@ -306,7 +306,7 @@ def generate_km_diff_heatmap(state_gdf, state_geojson_data, data, selected_fap_t
 
     # Adding Text to the Map
     for state_name, coords in center_pos.items():
-        avg_value = merged_data[merged_data["admin1Name"] == state_name]["KM_Diff_Calculation"].iloc[0]
+        avg_value = merged_data[merged_data["admin1Name"] == state_name]["KM Diff Calculation"].iloc[0]
         fig.add_trace(go.Scattermapbox(
             lat=[coords[1]],
             lon=[coords[0]],
