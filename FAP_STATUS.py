@@ -8,8 +8,18 @@ import json
 # Page configuration
 st.set_page_config(layout="wide", page_title="A2F VISUALIZATION", page_icon="🌍")
 
+# Display browser zoom recommendation 
+st.markdown(
+    """
+    <div style="background-color: #e6f3ff; padding: 20px; border-radius: 10px; border: 2px solid #99ccff; margin: 20px 0; text-align: center;">
+        <h3 style="color: #004080;">🌐 For the best experience, please set your browser zoom level to 75%.</h3>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 # Image to the sidebar
-st.sidebar.image("OIP.jpg", use_column_width=True)
+st.sidebar.image("OIP.jpg",  use_container_width=True)
 st.sidebar.header("FAP VISUALIZATION")
 
 # Function to load data
